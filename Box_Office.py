@@ -75,3 +75,17 @@ myDict = {}
 for i in range(0, len(x_Train_enc[0])):
     myDict[i] = header[i + 1]
 print(myDict)
+
+#perform chi square test
+chiSquareTest = SelectKBest(score_func=chi2, k="all")
+chiSquareTest.fit(x_Train_enc, y_Train)
+x_Train_fs = chiSquareTest.transform(x_Train_enc)
+x_Test_fs = chiSquareTest.transform(x_Test_enc)
+for i in range(len(chiSquareTest.scores_)):
+    print('Feature %d: %f' % (i, chiSquareTest.scores_[i]))
+# plot the scores
+pyplot.bar([i for i in range(len(chiSquareTest.scores_))], chiSquareTest.scores_)
+pyplot.xlabel('Feature Number')
+pyplot.ylabel('Chi-Squared Feature Importance')
+pyplot.show()
+#Features 17, 18, 2, 0, 4 were the top 5 most correlated feature with box office

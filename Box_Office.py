@@ -88,4 +88,29 @@ pyplot.bar([i for i in range(len(chiSquareTest.scores_))], chiSquareTest.scores_
 pyplot.xlabel('Feature Number')
 pyplot.ylabel('Chi-Squared Feature Importance')
 pyplot.show()
-#Features 17, 18, 2, 0, 4 were the top 5 most correlated feature with box office
+#Features 17, 18, 2, 0, 4 were the top 5 most correlated feature with box office according to chi Square Test
+
+mutInfoTest = SelectKBest(score_func=mutual_info_classif, k="all")
+mutInfoTest.fit(x_Train_enc, y_Train)
+x_Train_fs = mutInfoTest.transform(x_Train_enc)
+x_Test_fs = mutInfoTest.transform(x_Test_enc)
+for i in range(len(mutInfoTest.scores_)):
+    print('Feature %d: %f' % (i, mutInfoTest.scores_[i]))
+# plot the scores
+pyplot.bar([i for i in range(len(mutInfoTest.scores_))], mutInfoTest.scores_)
+pyplot.xlabel('Feature Number')
+pyplot.ylabel('Mutual Information Feature Importance')
+pyplot.show()
+#Features 18, 7, 2, 1, 4 were the top 5 most correlated feature with box office according to Mutual Info
+
+featToRank = {}
+featToName = {}
+# create random forest classifier and determine attribute importance with RFE
+estimator = RandomForestClassifier()
+selector = RFE(estimator, n_features_to_select=1, step=1)
+selector = selector.fit(x_Train_enc, y_Train)
+for i in range(1, len(header)):
+    featToRank[i-1] = selector.ranking_[i - 1]
+    featToRank[i-1] = header[i]
+    print(header[i], selector.ranking_[i-1])
+#Feature 1, 18, 4, 2, 0 were the top 5 most correlated feature with box office according to RFE

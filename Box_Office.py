@@ -11,6 +11,7 @@ from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import chi2
 from sklearn.feature_selection import mutual_info_classif
 from matplotlib import pyplot
+from sklearn.metrics import classification_report
 
 #Code to create a new csv file with the features I want
 """
@@ -111,6 +112,37 @@ selector = RFE(estimator, n_features_to_select=1, step=1)
 selector = selector.fit(x_Train_enc, y_Train)
 for i in range(1, len(header)):
     featToRank[i-1] = selector.ranking_[i - 1]
-    featToRank[i-1] = header[i]
+    featToName[i-1] = header[i]
     print(header[i], selector.ranking_[i-1])
 #Feature 1, 18, 4, 2, 0 were the top 5 most correlated feature with box office according to RFE
+colForFeatures = []
+for key in featToRank:
+    if int(featToRank[key]) <= 5:
+        colForFeatures.append(key)
+print(colForFeatures)
+
+rfeXTrain = []
+rfeYTrain = []
+for i in range(len(x_Train_enc)):
+    tempList = []
+    for ind in colForFeatures:
+        tempList.append(x_Train_enc[i][ind])
+    rfeXTrain.append(tempList)
+    rfeYTrain.append(y_Train[i])
+
+rfeXTest = []
+rfeYTest = []
+for i in range(len(x_Test_enc)):
+    tempList = []
+    for ind in colForFeatures:
+        tempList.append(x_Test_enc[i][ind])
+    rfeXTest.append(tempList)
+    rfeYTest.append(y_Test[i])
+
+clf = RandomForestClassifier()
+clf.fit(rfeXTrain, rfeYTrain)
+predictValues = clf.predict(rfeXTest)
+count = 0
+print()
+print('RFE Test')
+print(classification_report(rfeYTest, predictValues))
